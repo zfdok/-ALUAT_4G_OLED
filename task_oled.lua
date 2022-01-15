@@ -98,9 +98,10 @@ function ui_draw_clock()
     disp.putimage(string.format("/lua/font12x6_%s.bmp", tm_s_str_h), 99, 1)
     disp.putimage(string.format("/lua/font12x6_%s.bmp", tm_s_str_l), 105, 1)
     -- 显示日期
-    local tm_y_str = string.format("%2d", tm.year)
-    local tm_y_str_h = string.sub(tm_y_str, 1, 1)
-    local tm_y_str_l = string.sub(tm_y_str, 2, 2)
+    
+    local tm_y_str = string.format("%4d", tm.year)
+    local tm_y_str_h = string.sub(tm_y_str, 3, 3)
+    local tm_y_str_l = string.sub(tm_y_str, 4, 4)
     local tm_mo_str = string.format("%2d", tm.month)
     local tm_mo_str_h = string.sub(tm_mo_str, 1, 1)
     if tm_mo_str_h == " " then
