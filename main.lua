@@ -79,9 +79,6 @@ require "task_auto_screenoff"
 require "task_rec_key"
 require "task_onenet"
 
--- require "testoled"
---test----------------------------------------------------
-
 -- 启动系统框架
 sys.init(0, 0)
 sys.run()
