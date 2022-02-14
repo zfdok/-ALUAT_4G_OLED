@@ -40,12 +40,12 @@ local function task_onenet_reconnect()
         sys.wait(2000)
         log.warn("-------连接onenet...---------", connect_fail_count)
         onenet_mqttClient:connect("218.201.45.7", 1883)
-    end
-    if connect_fail_count >= 15 then
-        net.switchFly(true)
-        sys.wait(1000)
-        net.switchFly(true)
-        sys.wait(3000)
+        if connect_fail_count >= 10 then
+            net.switchFly(true)
+            sys.wait(5000)
+            net.switchFly(false)
+            sys.wait(10000)
+        end
     end
     connect_fail_count = 0
     _G.tempfail = connect_fail_count
@@ -231,8 +231,8 @@ local function onenet_iot()
                 last_wake_time = os.time()
                 log.warn("last_wake_time", last_wake_time)
                 log.warn("last_wake_time - last_sleep_time:", last_wake_time - last_sleep_time)
-                
-                if last_wake_time - last_sleep_time >= _G.period * 60 -15 then
+
+                if last_wake_time - last_sleep_time >= _G.period * 60 - 15 then
                     log.warn("暂时断开连接")
                     onenet_mqttClient:disconnect()
                     ---------------------- 飞行模式恢复网络 ----------------------
@@ -281,7 +281,7 @@ local function onenet_iot()
             log.warn("mqtt订阅失败")
             task_onenet_reconnect()
             log.warn("onenet_连接成功 -")
-        end 
+        end
         if not _G.REC_STATE then
             log.warn("**********打破外部记录循环**********")
             break

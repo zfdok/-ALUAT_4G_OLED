@@ -8,7 +8,6 @@
 require "sys"
 require "pins"
 
-
 module(..., package.seeall)
 
 --     _G.DeviceName = "al_kh00001_zx_0001"
@@ -28,7 +27,6 @@ module(..., package.seeall)
 --  _G.ProductId = "4LwKzUwOpX"
 --  _G.token =
 --      "version=2018-10-31&res=products%2F4LwKzUwOpX%2Fdevices%2Fal_kh00001_zx_0005&et=1674181606&method=md5&sign=bQmKstAM6cq6T3ZmjC1qgA%3D%3D"
-
 
 -- _G.DeviceName = "al00014g0001"
 -- _G.ProductId = "4LwKzUwOpX"
@@ -73,7 +71,6 @@ _G.FLY_STATE = false -- 飞行模式状态
 _G.temp_alarm = false -- 是否超限报警
 _G.flyrec_count = 0 -- 飞行状态下的记录条目
 _G.tempfail = 0
-
 
 function start_main()
     log.info("=======================Starting")
