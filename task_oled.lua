@@ -169,13 +169,13 @@ function ui_draw_battery()
         _G.BATT_VAL = misc.getVbatt()
         if _G.BATT_VAL > 4008 then
             _G.BATT_LEV = 100
-        elseif _G.BATT_VAL > 4000 then
+        elseif _G.BATT_VAL > 3842 then
             _G.BATT_LEV = 80
-        elseif _G.BATT_VAL > 3870 then
+        elseif _G.BATT_VAL > 3678 then
             _G.BATT_LEV = 60
-        elseif _G.BATT_VAL > 3790 then
+        elseif _G.BATT_VAL > 3514 then
             _G.BATT_LEV = 40
-        elseif _G.BATT_VAL > 3680 then
+        elseif _G.BATT_VAL > 3350 then
             _G.BATT_LEV = 10
         else
             _G.BATT_LEV = 0
