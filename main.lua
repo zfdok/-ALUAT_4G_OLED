@@ -64,7 +64,9 @@ ril.request("AT+RNDISCALL=0,1")
 -- update.request()
 
 require "powerKey"
-powerKey.setup(3000, function() rtos.poweroff() end)
+powerKey.setup(3000, function()
+    rtos.poweroff()
+end)
 
 -- require"config"
 -- require"nvm"
@@ -74,6 +76,7 @@ require "app_main"
 require "task_querysingle"
 require "task_oled"
 require "task_ds18b20"
+require "task_sht20"
 require "task_led"
 require "task_auto_screenoff"
 require "task_rec_key"

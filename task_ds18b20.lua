@@ -2,20 +2,16 @@
 -- require "sys"
 -- require "pm"
 -- require "pins"
-
 -- local function testds18b20()
 -- 	sys.wait(2000)
 -- 	-- 个别gpio需要打开电压域才可以正常使用
 -- 	pmd.ldoset(15,pmd.LDO_VLCD)
-	
 -- 	while true do
 -- 		local status,temperature = onewire.read_ds18b20(pio.P0_7)
-
 -- 		sys.wait(500)
 -- 	end
 -- end
 -- sys.taskInit(testds18b20)
-
 module(..., package.seeall)
 require "utils"
 require "pm"
@@ -24,39 +20,45 @@ require "pm"
 local tmp, hum -- 原始数据
 
 function ds18b20_init()
-	pmd.ldoset(15,pmd.LDO_VLCD)
+    pmd.ldoset(15, pmd.LDO_VLCD)
 end
 
 function ds18b20_getTH()
-		local status,temperature = onewire.read_ds18b20(pio.P0_7)
+    local status, temperature = onewire.read_ds18b20(pio.P0_7)
     sys.wait(200)
-		if status == onewire.OK then
-			-- log.info("18b20","temperature:",temperature/10000)
-			_G.temp = temperature/10000
-		elseif status == onewire.NOT_SENSOR then
-			log.info("18b20","未检测到传感器,请检查硬件连接")
-		elseif status == onewire.READ_ERROR then
-			log.info("18b20","读取数据过程错误")
-		elseif status == onewire.CHECK_ERROR then
-			log.info("18b20","数据校验错误")
-		end
+    if status == onewire.OK then
+        -- log.info("18b20","temperature:",temperature/10000)
+        if temperature ~= 0 then
+            _G.temp = temperature / 10000
+        end
+    elseif status == onewire.NOT_SENSOR then
+        log.info("18b20", "未检测到传感器,请检查硬件连接")
+    elseif status == onewire.READ_ERROR then
+        log.info("18b20", "读取数据过程错误")
+    elseif status == onewire.CHECK_ERROR then
+        log.info("18b20", "数据校验错误")
+    end
 end
 
 ---------------------------------------------------------♥♥♥♥♥♥♥♥♥♥-------------------------------------
 function ds18b20_while_lcdon()
-    log.info("ds18b20收到: LCD_STATE_ON 开启频繁测量!")
-    sys.taskInit(function()
-        while _G.LCD_STATE do
-            ds18b20_init()
-            ds18b20_getTH()
-            -- log.info("ds18b2020", "temp,humi", _G.temp, _G.humi)
-        end
-    end)
+    if not _G.HaveHumi then
+        log.info("ds18b20收到: LCD_STATE_ON 开启频繁测量!")
+        sys.taskInit(function()
+            while _G.LCD_STATE do
+                ds18b20_init()
+                ds18b20_getTH()
+                -- log.info("ds18b2020", "temp,humi", _G.temp, _G.humi)
+            end
+        end)
+    end
 end
 
 function ds18b20_while_lcdoff()
-    log.info("ds18b20收到: LCD_STATE_OFF 关闭频繁测量!")
-    _G.LCD_STATE = false
+    if not _G.HaveHumi then
+        log.info("ds18b20收到: LCD_STATE_OFF 关闭频繁测量!")
+        _G.LCD_STATE = false
+    end
 end
 
 function ds18b20_get_recing()
@@ -76,5 +78,7 @@ sys.subscribe("LCD_STATE_OFF", ds18b20_while_lcdoff)
 ----------------------------------------------------------------
 -- 启动个task, 定时查询ds18b2020的数据
 sys.taskInit(function()
-    ds18b20_init()
+    if not _G.HaveHumi then
+        ds18b20_init()
+    end
 end)

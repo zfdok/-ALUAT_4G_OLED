@@ -68,11 +68,6 @@ local function proc(onenet_mqttClient)
                     _G.tempU = tjsondata["data"]["tempU"]["value"]
                     _G.tempL = tjsondata["data"]["tempL"]["value"]
                 end
-                -- print(result)
-                -- print(_G.temp_alarm)
-                -- print(_G.period)
-                -- print(_G.tempU)
-                -- print(_G.tempL)
                 log.warn("---------------------- 完成期望值获取获取 ----------------------")
                 break
             end
@@ -231,8 +226,24 @@ local function onenet_iot()
                 last_wake_time = os.time()
                 log.warn("last_wake_time", last_wake_time)
                 log.warn("last_wake_time - last_sleep_time:", last_wake_time - last_sleep_time)
-
-                if last_wake_time - last_sleep_time >= _G.period * 60 - 15 then
+                -- 判断是否是报警状态--------------------------------------------
+                if _G.HaveHumi then
+                    task_sht20.sht20_get_recing()
+                else
+                    task_ds18b20.ds18b20_get_recing()
+                end
+                if _G.tempU < _G.temp or _G.tempL > _G.temp then
+                    _G.emegency = _G.emegency + 1
+                    log.warn("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@_G.emegency:", _G.emegency, _G.emegency % 2)
+                else
+                    _G.emegency = 0
+                    _G.already_beep = 0
+                    _G.stop_beep = 1
+                    log.warn("_G.emegency:", _G.emegency)
+                end
+                ---------------------------------------------------------------
+                if (last_wake_time - last_sleep_time >= _G.period * 60 - 15) or
+                    (_G.emegency > 0 and _G.emegency % 2 == 0) then
                     log.warn("暂时断开连接")
                     onenet_mqttClient:disconnect()
                     ---------------------- 飞行模式恢复网络 ----------------------
@@ -241,7 +252,11 @@ local function onenet_iot()
                         task_onenet_reconnect()
                         log.warn("onenet_连接成功 -")
                     end
-                    task_ds18b20.ds18b20_get_recing()
+                    if _G.HaveHumi then
+                        task_sht20.sht20_get_recing()
+                    else
+                        task_ds18b20.ds18b20_get_recing()
+                    end
                     sys.wait(500)
                     if not _G.FLY_STATE then
                         log.warn("====================== connected ----------------------", onenet_mqttClient.connected)

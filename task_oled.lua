@@ -25,28 +25,51 @@ function showWelcome()
     disp.putimage("/lua/welcome.bmp", 0, 0)
     disp.update()
 end
-function show_temp(temp)
-    local th, tl = math.modf(math.abs(temp))
-    local th_s, th_g = math.modf(math.abs(th) / 10)
-    local temp_zs = th_s
-    local temp_zg = math.floor(th_g * 10 + 0.5)
-    local tl_1, tl_2 = math.modf(math.abs(tl) * 10)
-    local temp_x1 = tl_1
-    local temp_x2 = math.floor(tl_2 * 10 + 0.5)
-    if temp < 0 then
-        if temp_zs ~= 0 then
-            disp.putimage("/lua/32x16_-.bmp", 15, 15)
-        else
-            disp.putimage("/lua/32x16_-.bmp", 31, 15)
+function show_temp_humi(temp, humi)
+    if _G.temp_humi_state == 0 then
+        local th, tl = math.modf(math.abs(temp))
+        local th_s, th_g = math.modf(math.abs(th) / 10)
+        local temp_zs = th_s
+        local temp_zg = math.floor(th_g * 10 + 0.5)
+        local tl_1, tl_2 = math.modf(math.abs(tl) * 10)
+        local temp_x1 = tl_1
+        local temp_x2 = math.floor(tl_2 * 10 + 0.5)
+        if temp < 0 then
+            if temp_zs ~= 0 then
+                disp.putimage("/lua/32x16_-.bmp", 15, 15)
+            else
+                disp.putimage("/lua/32x16_-.bmp", 31, 15)
+            end
         end
+        if temp_x2 == 10 then
+            temp_x2 = 9
+        end
+        if temp_zs ~= 0 then
+            disp.putimage(string.format("/lua/32x16_%d.bmp", temp_zs), 25, 15)
+        end
+        disp.putimage(string.format("/lua/32x16_%d.bmp", temp_zg), 41, 15)
+        disp.putimage("/lua/32x16_dot.bmp", 57, 15)
+        disp.putimage(string.format("/lua/32x16_%d.bmp", temp_x1), 65, 15)
+        disp.putimage(string.format("/lua/32x16_%d.bmp", temp_x2), 81, 15)
+    else
+        local hh, hl = math.modf(math.abs(humi))
+        local hh_s, hh_g = math.modf(math.abs(hh) / 10)
+        local humi_zs = hh_s
+        local humi_zg = math.floor(hh_g * 10 + 0.5)
+        local hl_1, hl_2 = math.modf(math.abs(hl) * 10)
+        local humi_x1 = hl_1
+        local humi_x2 = math.floor(hl_2 * 10 + 0.5)
+        if humi_x2 == 10 then
+            humi_x2 = 9
+        end
+        if humi_zs ~= 0 then
+            disp.putimage(string.format("/lua/32x16_%d.bmp", humi_zs), 25, 15)
+        end
+        disp.putimage(string.format("/lua/32x16_%d.bmp", humi_zg), 41, 15)
+        disp.putimage("/lua/32x16_dot.bmp", 57, 15)
+        disp.putimage(string.format("/lua/32x16_%d.bmp", humi_x1), 65, 15)
+        disp.putimage(string.format("/lua/32x16_%d.bmp", humi_x2), 81, 15)
     end
-    if temp_zs ~= 0 then
-        disp.putimage(string.format("/lua/32x16_%d.bmp", temp_zs), 25, 15)
-    end
-    disp.putimage(string.format("/lua/32x16_%d.bmp", temp_zg), 41, 15)
-    disp.putimage("/lua/32x16_dot.bmp", 57, 15)
-    disp.putimage(string.format("/lua/32x16_%d.bmp", temp_x1), 65, 15)
-    disp.putimage(string.format("/lua/32x16_%d.bmp", temp_x2), 81, 15)
 end
 function ui_draw_singnal()
     if _G.SINGLE_QUERY > 25 then
@@ -98,7 +121,7 @@ function ui_draw_clock()
     disp.putimage(string.format("/lua/font12x6_%s.bmp", tm_s_str_h), 99, 1)
     disp.putimage(string.format("/lua/font12x6_%s.bmp", tm_s_str_l), 105, 1)
     -- 显示日期
-    
+
     local tm_y_str = string.format("%4d", tm.year)
     local tm_y_str_h = string.sub(tm_y_str, 3, 3)
     local tm_y_str_l = string.sub(tm_y_str, 4, 4)
@@ -197,9 +220,17 @@ function ui_draw_battery()
 end
 function show_ui(rec_state)
     if rec_state then
-        disp.putimage("/lua/sc_main.bmp", 0, 0)
+        if _G.temp_humi_state == 0 then
+            disp.putimage("/lua/sc_main.bmp", 0, 0)
+        else
+            disp.putimage("/lua/sc_main_humi.bmp", 0, 0)
+        end
     else
-        disp.putimage("/lua/sc_main_off.bmp", 0, 0)
+        if _G.temp_humi_state == 0 then
+            disp.putimage("/lua/sc_main_off.bmp", 0, 0)
+        else
+            disp.putimage("/lua/sc_main_off_humi.bmp", 0, 0)
+        end
     end
     ui_draw_singnal()
     ui_draw_clock()
@@ -209,7 +240,7 @@ end
 function showLoop()
     disp.clear()
     show_ui(_G.REC_STATE)
-    show_temp(_G.temp)
+    show_temp_humi(_G.temp, _G.humi)
     disp.update()
 end
 function lcd_while_lcdon()
@@ -218,6 +249,18 @@ function lcd_while_lcdon()
     disp.sleep(0)
     sys.taskInit(function()
         while _G.LCD_STATE do
+            if _G.HaveHumi then
+                if _G.screen_scroll < 100 then
+                    _G.screen_scroll = _G.screen_scroll + 2
+                else
+                    _G.screen_scroll = 0
+                end
+                if _G.screen_scroll <= 60 then
+                    _G.temp_humi_state = 0
+                else
+                    _G.temp_humi_state = 1
+                end
+            end
             if _G.SCREEN_STATE == 0 then
                 showLoop()
             end
