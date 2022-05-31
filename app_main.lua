@@ -10,12 +10,12 @@ require "pins"
 
 module(..., package.seeall)
 
-_G.DeviceName = "al00034g0091"
+_G.DeviceName = "al00034g0090"
 _G.ProductId = "4LwKzUwOpX"
 _G.token =
-    "version=2018-10-31&res=products%2F4LwKzUwOpX%2Fdevices%2Fal00034g0091&et=4092599349&method=md5&sign=Qst%2BItGZj2pQdnpN%2BwbLuQ%3D%3D"
+    "version=2018-10-31&res=products%2F4LwKzUwOpX%2Fdevices%2Fal00034g0090&et=4092599349&method=md5&sign=HRjDTluMI4R5RFQG8GKX4Q%3D%3D"
 
-_G.HaveHumi = true -- 是否测湿度
+_G.HaveHumi = true -- 是否测湿度 false
 _G.screen_scroll = 0 -- 界面轮播计数
 _G.temp_humi_state = 0 -- 轮播界面
 _G.LCD_STATE = true -- 屏幕亮暗状态

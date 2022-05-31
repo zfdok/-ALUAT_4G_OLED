@@ -1,17 +1,3 @@
--- module(..., package.seeall)
--- require "sys"
--- require "pm"
--- require "pins"
--- local function testds18b20()
--- 	sys.wait(2000)
--- 	-- 个别gpio需要打开电压域才可以正常使用
--- 	pmd.ldoset(15,pmd.LDO_VLCD)
--- 	while true do
--- 		local status,temperature = onewire.read_ds18b20(pio.P0_7)
--- 		sys.wait(500)
--- 	end
--- end
--- sys.taskInit(testds18b20)
 module(..., package.seeall)
 require "utils"
 require "pm"

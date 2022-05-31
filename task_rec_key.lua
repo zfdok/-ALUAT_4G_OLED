@@ -17,6 +17,9 @@ end
 function rec_key_while_recoff()
     log.info("收到: REC_STATE_OFF, 更改 _G.REC_STATE = false")
     _G.REC_STATE = false
+    _G.emegency = 0
+    _G.already_beep = 0
+    _G.stop_beep = 1
 end
 
 sys.subscribe("REC_STATE_ON", rec_key_while_recon)
